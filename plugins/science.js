@@ -13,10 +13,6 @@ const MESSAGES_TIME_OUT = 7 * 24 * 60 * 60 * 1000;
 // sync database properties
 if (!database.potd) database.potd = [];
 if (!database.researchMerch) database.researchMerch = [];
-if (!database.myths) database.myths = {};
-if (!database.myths.db) {
-	database.myths.db = [];
-	database.myths.lastID = -1;
 }
 /* Shop Merchandise
  * 1st Element: Name
@@ -33,7 +29,7 @@ let shopMerch = [
 		5,
 		"fossil, amount of fossils",
 		"groupchat-aurolux-science"],
-	
+	/* To be edited from writing
 	["Take The Stage",
 		"For up to 2 minutes, we will set the room to modchat(+) and let you recite your poem or rap in the chat live! There is no greater way to receive feedback and recognition.",
 		"500 (Five Hundred)",
@@ -63,7 +59,7 @@ let shopMerch = [
 		"2,000 (Two Thousand)",
 		2000,
 		"antagonist. Follow the rest instuctions provided on purchase.",
-		"Writing"],
+		"Writing"], */
 	["Your Soul",
 		"???",
 		"1,000,000 (One Million)",
@@ -71,36 +67,6 @@ let shopMerch = [
 		"my soul",
 		"Yourself"],
 ];
-
-function randIdea() {
-	let genre1 = genres[Math.floor(genres.length * Math.random())];
-	let genre2;
-	if (Math.floor(Math.random() * 2)) {
-		genre2 = genres[Math.floor(genres.length * Math.random())];
-		while (genre1 === genre2) {
-			genre2 = genres[Math.floor(genres.length * Math.random())];
-		}
-	}
-	let adjective = adjectives[Math.floor(adjectives.length * Math.random())];
-	let location = locations[Math.floor(locations.length * Math.random())];
-	let characterAdjective = characterAdjectives[Math.floor(characterAdjectives.length * Math.random())];
-	let type = characterTypes[Math.floor(characterTypes.length * Math.random())];
-	let role = roles[Math.floor(4 * Math.random())];
-	let gender = ["male", "female"][Math.floor(2 * Math.random())];
-	if (Math.floor(Math.random() * 4200) < 15) gender = "hermaphrodite";
-	if (Math.floor(Math.random() * 4200) < 10) gender = "transgender";
-	if (Math.floor(Math.random() * 4200) < 5) gender = "neuter";
-	let pronoun = pronouns[gender];
-	let possessivePronoun = possessivePronouns[gender];
-	let perkList = perks.slice(0);
-	let perk1 = perkList[Math.floor(perkList.length * Math.random())];
-	perkList.splice(perkList.indexOf(perk1), 1);
-	let perk2 = perkList[Math.floor(perkList.length * Math.random())];
-	perkList.splice(perkList.indexOf(perk2), 1);
-	let perk3 = perkList[Math.floor(perkList.length * Math.random())];
-	let debuff = debuffs[Math.floor(debuffs.length * Math.random())];
-	return "Setting: __" + adjective + " " + location + "__ | Genre: __" + genre1 + (genre2 ? "/" + genre2 : "") + "__ | " + role + ": __a " + gender + ", " + characterAdjective + " " + type + ". " + possessivePronoun + " positive factors include: " + perk1 + ", " + perk2 + ", and " + perk3 + ", though " + pronoun + (gender === "neuter" ? " are" : " is") + " unfortunately rather " + debuff + ".__";
-}
 
 /**@type {{[k: string]: Command | string}} */
 let commands = {
@@ -115,47 +81,7 @@ let commands = {
 	 *	let variabletwo = list2[Math.floor(list2.length * Math.random())];
 	 *	this.say(text + "Randomly generated thing: __" + variableone + " " + variabletwo + "__.");
 	 * },
-	//Returns a random character build.
-	randchar: 'randomcharacter',
-	chargen: 'randomcharacter',
-	genchar: 'randomcharacter',
-	randomcharacter: function (target, room, user) {
-		let text = room instanceof Users.User || user.hasRank(room, '+') ? '' : '/pm ' + user.name + ', ';
-		let adjective = characterAdjectives[Math.floor(characterAdjectives.length * Math.random())];
-		let type = characterTypes[Math.floor(characterTypes.length * Math.random())];
-		let role = roles[Math.floor(roles.length * Math.random())];
-		let gender = ["male", "female"][Math.floor(2 * Math.random())];
-		if (Math.floor(Math.random() * 4200) < 20) gender = "hermaphrodite";
-		if (Math.floor(Math.random() * 4200) < 10 || type === "...thing") gender = "neuter";
-		let pronoun = pronouns[gender];
-		let possessivePronoun = possessivePronouns[gender];
-		let perkList = perks.slice(0);
-		let perk1 = perkList[Math.floor(perkList.length * Math.random())];
-		perkList.splice(perkList.indexOf(perk1), 1);
-		let perk2 = perkList[Math.floor(perkList.length * Math.random())];
-		perkList.splice(perkList.indexOf(perk2), 1);
-		let perk3 = perkList[Math.floor(perkList.length * Math.random())];
-		let debuff = debuffs[Math.floor(debuffs.length * Math.random())];
-		this.say(text + "Randomly generated character: __A " + gender + ", " + adjective + " " + type + " (" + role + "). " + possessivePronoun + " positive factors include: " + perk1 + ", " + perk2 + ", and " + perk3 + ", though " + pronoun + (gender === "neuter" ? " are" : " is") + " unfortunately rather " + debuff + ".__");
-	},
-	//Returns a random Pokemon type or type combination.
-	gentype: 'randomtype',
-	randtype: 'randomtype',
-	randomtype: function (target, room, user) {
-		let text = room instanceof Users.User || user.hasRank(room, '+') ? '' : '/pm ' + user.name + ', ';
-		target = Tools.toId(target);
-		if (target && target !== 'single' && target !== 'dual') this.say(text + "Please input either 'single' or 'dual' as arguments, or leave it blank for a random decision. Continuing as if you left it blank.");
-		let firstType = types[Math.floor(types.length * Math.random())];
-		let secondType;
-		if (target !== 'single' && (target === 'dual' || Math.floor(Math.random() * 2))) {
-			secondType = types[Math.floor(types.length * Math.random())];
-			while (firstType === secondType) {
-				secondType = types[Math.floor(types.length * Math.random())];
-			}
-		}
-		this.say(text + "Randomly generated type: __" + firstType + (secondType ? "/" + secondType : "") + "__.");
-	},
-		*/
+	*/
 
 	/*
 	 * Messaging-related commands
@@ -267,7 +193,7 @@ let commands = {
 			hasPerms = true;
 		}
 		if (!hasPerms) return this.say(text + 'You must be at least Voice or higher to set the Scientist of the Day.');
-		if (targets.length < 4) return this.say(text + "Invalid arguments specified. The format is: __title__ | __birth-death__ | __profession__ | __description__.");
+		if (targets.length < 4) return this.say(text + "Invalid arguments specified. The format is: __title__ | __lifetime__ | __profession__ | __description__.");
 		let sotd = {
 			title: targets[0].trim(),
 			lifetime: targets [1],
@@ -323,7 +249,7 @@ let commands = {
 			targets.shift();
 		}
 		if (database.fotd) {
-			if (!typo && Date.now() - database.fotd.time < 61200000) return this.say(text + "Sorry, but at least 17 hours must have passed since the FOTD was last set in order to set it again!");
+			if (!typo && Date.now() - database.fotd.time < 61200000) return this.say(text + "Sorry, but at least 17 hours must have passed since the SOTD was last set in order to set it again!");
 		}
 		let hasPerms = false;
 		if (database.scribeShop) {
@@ -333,8 +259,8 @@ let commands = {
 		} else if (!(room instanceof Users.User) && user.hasRank(room, '+')) {
 			hasPerms = true;
 		}
-		if (!hasPerms) return this.say(text + 'You must be at least Voice or higher to set the Fact of the Day.');
-		if (targets.length < 3) return this.say(text + "Invalid arguments specified. The format is: __fac__ | __field of science___ | __description__.");
+		if (!hasPerms) return this.say(text + 'You must be at least Voice or higher to set the Scientist of the Day.');
+		if (targets.length < 3) return this.say(text + "Invalid arguments specified. The format is: __title__ | __description__.");
 		let fotd = {
 			fact: targets[0].trim(),
 			type: targets[1],
@@ -364,8 +290,8 @@ let commands = {
 		if (!target) {
 			if (!database.stotd) return this.say(text + "No Star of the Day has been set.");
 			let tem = new Date(database.stotd.time).toLocaleString('en-US', {hour: 'numeric', minute:'numeric', day:'2-digit', month:'long', hour12: true, timeZoneName: 'short'});
-			let box = '<div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"> <span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: #5b24ad ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-star"></i> Star of the Day <i class="fa fa-star"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.stotd.title + '</div><span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;"><b>Type:</b> <span style="letter-spacing:0;">' + database.stotd.type + '</span></span> <span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.stotd.description + '</span></td></tr></table></div>';
-			let boxpm = '<div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"> <span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: #5b24ad ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-star"></i> Star of the Day <i class="fa fa-star"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.stotd.title + '</div><span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;"><b>Type:</b> <span style="letter-spacing:0;">' + database.stotd.type + '</span></span> <span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.stotd.description + '</span></td></tr></table></div>';
+			let box = '<div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"> <span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: #5b24ad ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-star"></i> Scientist of the Day <i class="fa fa-star"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.stotd.title + '</div><span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;"><b>Type:</b> <span style="letter-spacing:0;">' + database.stotd.type + '</span></span> <span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.stotd.description + '</span></td></tr></table></div>';
+			let boxpm = '<div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"> <span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: #5b24ad ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-star"></i> Scientist of the Day <i class="fa fa-star"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.stotd.title + '</div><span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;"><b>Type:</b> <span style="letter-spacing:0;">' + database.stotd.type + '</span></span> <span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.stotd.description + '</span></td></tr></table></div>';
 			if (!(room instanceof Users.User) && user.hasRank(room, '+')) {
 				return this.sayHtml(box);
 			} else {
@@ -390,7 +316,7 @@ let commands = {
 			targets.shift();
 		}
 		if (database.stotd) {
-			if (!typo && Date.now() - database.stotd.time < 61200000) return this.say(text + "Sorry, but at least 17 hours must have passed since the STOTD was last set in order to set it again!");
+			if (!typo && Date.now() - database.stotd.time < 61200000) return this.say(text + "Sorry, but at least 17 hours must have passed since the SOTD was last set in order to set it again!");
 		}
 		let hasPerms = false;
 		if (database.scribeShop) {
@@ -424,7 +350,7 @@ let commands = {
 		this.say("/modnote The Star of the Day was set to " + database.stotd.title + " by " + database.stotd.user + ".");
 		},
 	/*
-	* Scribe Shop Commands!
+	* ScienceData Shop Commands!
 	*/
 	addmoles: 'addfunds',
 	pay: 'addfunds',
@@ -438,7 +364,7 @@ let commands = {
 		let funds = parseInt(targets[1]);
 		if (isNaN(funds)) return this.say("Currency amount to add is not equal to a number.");
 
-		//Build instance of the Scribe Shop if it does not exist; this will always happen on the first use of the command on a new bot, or if Settings.json has been erased or damaged.
+		//Build instance of the Science Shop if it does not exist; this will always happen on the first use of the command on a new bot, or if Settings.json has been erased or damaged.
 		if (!database.researchMerch) {
 			database.researchMerch = [];
 			let extraFunds = Math.round(funds / 2);
@@ -449,7 +375,7 @@ let commands = {
 				totalEarned: amount,
 			});
 			Storage.exportDatabase('writing');
-			return this.say("A new Scribe Shop service has been created, and its very first account, " + targets[0].trim() + "'s, has had ``" + funds + "`` Moles added. And as a bonus for this event, we're throwing in an extra ``" + extraFunds + "`` Moles, absolutely free of charge! Now aren't we just so nice? c:");
+			return this.say("A new Science Shop service has been created, and its very first account, " + targets[0].trim() + "'s, has had ``" + funds + "`` Moles added. And as a bonus for this event, we're throwing in an extra ``" + extraFunds + "`` Moles, absolutely free of charge! Now aren't we just so nice? c:");
 		}
 
 		//Search through all accounts.
@@ -621,11 +547,11 @@ let commands = {
 			this.say(text + "Cookie (x" + amount + ") bought!");
 			break;
 		}
-		case "inspirationalquote":
-		case "quote":
-			if (amount > 1) return this.say(text + "Sorry, but you can only buy one quote at a time. c:");
-			this.say(text + "Sorry, but this is disabled for now until we can get some more quotes. Come back later! You have not been charged for this.");
-			/*
+		/* Formatting for item
+		case "[item]":
+			if (amount > 1) return this.say(text + "Sorry, but you can only buy one [item] at a time.");
+			this.say(text + "Sorry, but this is disabled for now until we can get some more [item]s. Come back later! You have not been charged for this.");
+			/ *
 			for (let j = 0; j < shopMerch.length; j++) {
 				if (shopMerch[j][0] === "Inspirational Quote") {
 					numBr = j;
@@ -636,185 +562,10 @@ let commands = {
 			account.bal -= shopMerch[numBr][3];
 			let quote = "Don't let your dreams be dreams! (This is a placeholder. Sorry :c)";
 			this.say(text + "Your inspirational quote is: " + quote);
+			* /
+			break;
 			*/
-			break;
-		case "inspirethemasses":
-		case "inspire":
-			if (amount > 1) return this.say(text + "Sorry, but you can only buy one of these.");
-			if (account.masses === 1) return this.say(text + "Sorry, but you already own one of these!");
-			for (let j = 0; j < shopMerch.length; j++) {
-				if (shopMerch[j][0] === "Inspire The Masses") {
-					numBr = j;
-					break;
-				}
-			}
-			if (account.bal < shopMerch[numBr][3]) return this.say(text + "You can't afford to inspire the masses! Uh-oh...");
-			// @ts-ignore
-			account.bal -= shopMerch[numBr][3];
-			account.masses = 1;
-			this.say(text + "Bought! Congratulations! Go ahead and talk to an RO now about having your image publicly displayed for the whole room to see!");
-			break;
-		case "privategreeting":
-		case "personalgreetingpm":
-		case "greetingpm": {
-			if (amount > 1) return this.say(text + "Sorry, but you can only buy one of these.");
-			if (account.greetings) {
-				if (account.greetings.private) return this.say(text + "Sorry, but you already own one of these! Feel free to edit it with the " + Config.commandCharacter + "editgreeting command!");
-			}
-			for (let j = 0; j < shopMerch.length; j++) {
-				if (shopMerch[j][0] === "Personal Greeting (PM)") {
-					numBr = j;
-					break;
-				}
-			}
-
-			if (account.bal < shopMerch[numBr][3]) return this.say(text + "You can't afford to buy a personal greeting! Awh...");
-			// @ts-ignore
-			account.bal -= shopMerch[numBr][3];
-			if (!account.greetings) {
-				account.greetings = {};
-			}
-			account.greetings.private = {};
-			let greeting = {
-				text: "Don't forget to set your new Personal Greeting with " + Config.commandCharacter + "editgreeting!",
-				lastTriggered: null,
-				enabled: true,
-			};
-			account.greetings.private = greeting;
-			this.say(text + "Bought! Congratulations! Go ahead and use the " + Config.commandCharacter + "editgreeting command to set your new greeting!");
-			break;
-		}
-		case "takethestage":
-		case "stage": {
-			if (amount > 2) return this.say(text + "Sorry, but you can only buy one of these.");
-			if (account.stage + amount > 2) return this.say(text + "Sorry, but you already own two of these at any one time.");
-			for (let j = 0; j < shopMerch.length; j++) {
-				if (shopMerch[j][0] === "Take The Stage") {
-					numBr = j;
-					break;
-				}
-			}
-			// @ts-ignore
-			let price = shopMerch[numBr][3] * amount;
-			if (account.bal < price) return this.say(text + "You can't afford to take the stage! Boo... :c");
-			account.bal -= price;
-			if (!account.stage) {
-				account.stage = 0;
-			}
-			account.stage += Number(amount);
-			this.say(text + "Bought! Congratulations! Feel free to use the " + Config.commandCharacter + "spotlight command to Take The Stage!");
-			break;
-		}
-		case "poeticlicense":
-		case "license":
-			if (!(room instanceof Users.User) && user.hasRank(room, '+')) return this.say(text + "There's no need for you to buy this! You can set the WOTD whenever you want, silly. ;p");
-			if (amount > 1) return this.say(text + "Sorry, but you can only buy one of these. :c");
-			if (account.wotd) return this.say(text + "You already own a Poetic License! Remember to set the WOTD with " + Config.commandCharacter + "wotd ``word``, ``pronunciation``, ``part of speech`` (Noun, Verb, Adjective, Etc.), and ``Definition``.");
-			for (let j = 0; j < shopMerch.length; j++) {
-				if (shopMerch[j][0] === "Poetic License") {
-					numBr = j;
-					break;
-				}
-			}
-			if (account.bal < shopMerch[numBr][3]) return this.say(text + "You can't afford to buy a poetic license! Should we... arrest you, or something?");
-			// @ts-ignore
-			account.bal -= shopMerch[numBr][3];
-			account.wotd = 3;
-			this.say(text + "Bought! Congratulations, you now have the ability to edit the Word of the Day up to 3 times! The format is: " + Config.commandCharacter + "wotd ``word``, ``pronunciation``, ``part of speech`` (Noun, Verb, Adjective, Etc.), and ``Definition``.");
-			break;
-		case "publicgreeting":
-		case "personalgreetingpublic":
-		case "greetingpublic": {
-			if (amount > 1) return this.say(text + "Sorry, but you can only buy one of these.");
-			if (account.greetings) {
-				if (account.greetings.public) return this.say(text + "Sorry, but you already own one of these! Feel free to edit it with the " + Config.commandCharacter + "editgreeting command!");
-			}
-			for (let j = 0; j < shopMerch.length; j++) {
-				if (shopMerch[j][0] === "Personal Greeting (Public)") {
-					numBr = j;
-					break;
-				}
-			}
-			if (account.bal < shopMerch[numBr][3]) return this.say(text + "You can't afford to buy a personal greeting! Awh...");
-			// @ts-ignore
-			account.bal -= shopMerch[numBr][3];
-			if (!account.greetings) {
-				account.greetings = {};
-			}
-			account.greetings.public = {};
-			let greeting = {
-				text: "/msg " + user.name + ", Don't forget to set your new Personal Greeting with " + Config.commandCharacter + "editgreeting!",
-				lastTriggered: null,
-				enabled: true,
-			};
-			account.greetings.public = greeting;
-			this.say(text + "Bought! Congratulations! Go ahead and use the " + Config.commandCharacter + "editgreeting command to set your new greeting!");
-			break;
-		}
-		case "letssavetheworld":
-		case "savetheworld":
-		case "protagonist":
-			if (amount > 1) return this.say(text + "Sorry... You can only buy one of these. :c");
-			for (let j = 0; j < shopMerch.length; j++) {
-				if (shopMerch[j][0] === "Let's Save The World!") {
-					numBr = j;
-					break;
-				}
-			}
-			if (account.bal < shopMerch[numBr][3]) return this.say(text + "You can't afford to save the world! ...Welp. We're done for now, aren't we? >:/ Good job, " + user.name + "! You had one job.");
-			// @ts-ignore
-			account.bal -= shopMerch[numBr][3];
-			let protag = {
-				enabled: true,
-				sponsored: false,
-				deadline: null,
-				sponsor: null,
-			};
-			if (account.protag) {
-				if (account.protag.enabled) return this.say(text + "Sorry. you can only own one of these at once. Go ahead and redeem yours first before you try to buy another!");
-			}
-			account.protag = protag;
-			this.say(text + "Bought! Congratulations! Now, your next goal is to try and convince someone in the approved list of Sponsors to ``" + Config.commandCharacter + "sponsor`` you! For a list of users who can do this, go ahead and use ``" + Config.commandCharacter + "sponsors``.");
-			this.say(text + "If the Sponsor doesn't submit their story by the deadline (3 weeks from the date of sponsorship), then you will recieve your copy of Let's Save the World back! Yaaaaay. c:");
-			break;
-		case "destroyitall":
-		case "destroy":
-		case "antagonist":
-			for (let j = 0; j < shopMerch.length; j++) {
-				if (shopMerch[j][0] === "Destroy It All!") {
-					numBr = j;
-					break;
-				}
-			}
-			if (account.bal < shopMerch[numBr][3]) return this.say(text + "You can't afford to destroy it all! ...W-wait... Isn't that a good thing?");
-			// @ts-ignore
-			account.bal -= shopMerch[numBr][3];
-			let antag = {
-				enabled: true,
-				sponsored: false,
-				deadline: null,
-				sponsor: null,
-			};
-			if (account.antag) {
-				if (account.antag.enabled) return this.say(text + "Sorry. you can only own one of these at once. Go ahead and redeem yours first before you try to buy another!");
-			}
-			account.antag = antag;
-			this.say(text + "Bought! Congratulations! Now, your next goal is to try and convince someone in the approved list of Sponsors to ``" + Config.commandCharacter + "sponsor`` you! For a list of users who can do this, go ahead and use ``" + Config.commandCharacter + "sponsors``.");
-			this.say(text + "If the Sponsor doesn't submit their story by the deadline (3 weeks from the date of sponsorship), then you will recieve your copy of Destroy It All back! Yaaaaay. c:");
-			break;
-		case "mysoul":
-		case "yoursoul":
-		case "soul":
-			if (!(room instanceof Users.User) && user.hasRank(room, '+')) {
-				return this.say(text + "You cannot.");
-			} else {
-				return this.say(text + "...You really are a funny sort, aren't you?");
-			}
-		default:
-			return this.say(text + "That item doesn't exist! Check that you're typing the right name, or contact a staff member if something's not working properly!");
-		}
-		Storage.exportDatabase('writing');
-		this.say(text + "Thank you for doing business at the Scribe Shop! Your new balance is: ``" + account.bal + "``!");
+		
 	},
 	cookies: 'cookie',
 	cookie: function (target, room, user) {
@@ -831,139 +582,9 @@ let commands = {
 		}
 		return this.say(text + "Odd... You don't seem to even have an account! :c");
 	},
-	inspire: 'checkmasses',
-	masses: 'checkmasses',
-	checkmasses: function (target, room, user) {
-		if (room instanceof Users.User || !user.hasRank(room, '#')) return false;
-		if (!database.researchMerch) return this.say("Error: The Scribe Shop does not exist. Please instruct someone with a rank to add funds to somebody's account before continuing.");
-		let targets = target.split(',');
-		let buyer = Tools.toId(targets[0]);
-		if (!buyer) return this.say("Please input the name of the user to search for.");
-		let action = Tools.toId(targets[1]);
-		for (let i = 0; i < database.researchMerch.length; i++) {
-			if (database.researchMerch[i].account === buyer) {
-				if (database.researchMerch[i].masses === 1) {
-					if (action === "use" || action === "redeem") {
-						database.researchMerch[i].masses = 0;
-						Storage.exportDatabase('writing');
-						return this.say("Now redeeming... Transation complete! Feel free to summon the requested image. " + targets[0].trim() + " may now buy another copy of Inspire the Masses if they wish.");
-					} else {
-						return this.say("**Yes!** " + targets[0].trim() + " has the rights to Inspire The Masses!");
-					}
-				} else {
-					return this.say("__Nope.__ " + targets[0].trim() + " doesn't have the rights to Inspire The masses.");
-				}
-			}
-		}
-	},
-	editgreeting: function (target, room, user) {
-		if (!(room instanceof Users.User) && !user.hasRank(room, '+')) return false;
-		if (!database.researchMerch) return this.say("Error: The Scribe Shop does not exist. Please instruct someone with a rank to add funds to somebody's account before continuing.");
-		if (!target) return this.say("Incorrect usage. ``(" + Config.commandCharacter + "editgreeting [public/private], New Greeting)``");
-		let targets = target.split(',');
-		let type = Tools.toId(targets[0]);
-		if (!targets[1] || (type !== "public" && type !== "private")) return this.say("Incorrect usage. ``(" + Config.commandCharacter + "editgreeting [public/private], New Greeting)``");
-		let newGreetingText = targets.slice(1).join(', ');
-		for (let i = 0; i < database.researchMerch.length; i++) {
-			if (database.researchMerch[i].account === user.id) {
-				if (!database.researchMerch[i].greetings) {
-					return this.say("You didn't even buy a greeting first to edit, " + user.name + "!");
-				} else if (type === "public") {
-					if (!database.researchMerch[i].greetings.public) return this.say("You don't own a Public Greeting! QAQ");
-					// And now, to begin the changes! PS message length hard cap: 300 characters.
-					// Softcap: 300 take (28 plus username length).
-					// This limit exists so that AxeBot has an excuse to say something before the public greeting. Otherwise, people could get the bot to use commands. Whilst something like /me is relatively harmless... what happens when someone sets their 'greeting' to /ban a bunch of people?
-					let customLimit = 300 - (28 + database.researchMerch[i].account.length);
-					if (newGreetingText.length > customLimit) return this.say("Sorry, but the length of your message is too long! Your personal limit is set to " + customLimit + " characters. Try shortening your greeting or using a shorter username for your account.");
-					database.researchMerch[i].greetings.public.text = newGreetingText;
-					Storage.exportDatabase('writing');
-					return this.say("Greeting updated: " + newGreetingText);
-				} else if (type === "private") {
-					if (!database.researchMerch[i].greetings.private) return this.say("You don't own a Private Greeting! QAQ");
-					database.researchMerch[i].greetings.private.text = newGreetingText;
-					Storage.exportDatabase('writing');
-					return this.say("Greeting updated: " + newGreetingText);
-				}
-			}
-		}
-	},
-	spotlight: function (target, room, user) {
-		if (room instanceof Users.User) return false;
-		let text = user.hasRank(room, '+') ? '' : '/pm ' + user.name + ', ';
-		if (Tools.toId(Config.username) === "axebot") return this.say(text + "This command cannot be used on AxeBot because it's too spammy.");
-		// Two minutes.
-		let found = false;
-		for (let i = 0; i < database.researchMerch.length; i++) {
-			if (user.id === database.researchMerch[i].account) {
-				found = true;
-				if (!database.researchMerch[i].stage) return this.say(text + "Seems like you haven't bought a copy of Take the Stage yet!");
-				database.researchMerch[i].stage -= 1;
-				this.say("**WARNING:** " + user.name + " has redeemed their copy of 'Take the Stage!' Due to this, Moderated Chat (+) will be put in place in **one minute!** Please finish up any discussions you may be having quickly. :3");
-				/*
-				this.enable = setTimeout(() => {
-					let origVoice = false;
-					this.say(room, "/modchat +");
-					if (!user.hasRank(room, '+')) {
-						this.say(room, "/roomvoice " + user.id);
-					} else {
-						origVoice = true;
-					}
-					this.say(room, user.name + "'s **Take the Stage** is now in play! The candy bar is now open. Please sit back, relax, and enjoy the movie. c:");
-					this.warn = setTimeout(() => {
-						this.say(room, "/msg " + user.id + ", **Hey!** One minute remaining until your time expires. :o");
-						this.warnAgain = setTimeout(() => {
-							this.say(room, "/msg " + user.id + ", **WARNING:** Time's almost up! Thirty seconds remaining! QAQ");
-						}, 60 * 500);
-					}, 60 * 1000);
-					this.disable = setTimeout(() => {
-						this.say(room, "/modchat autoconfirmed");
-						if (origVoice === false) this.say(room, "/roomdevoice " + user.id);
-						this.say(room, "**Time's up!** Thank you for using Take the Stage. c:");
-					}, 60 * 2000);
-				}, 60 * 1000);
-				*/
-			}
-		}
-		if (!found) return this.say(text + "Sorry, but you don't seem to have a Scribe Shop account. :/");
-	},
-	disable: 'disablegreeting',
-	enable: 'disablegreeting',
-	enablegreeting: 'disablegreeting',
-	disablegreeting: function (target, room, user) {
-		let text = (room instanceof Users.User || user.hasRank(room, '+')) ? '' : '/pm ' + user.id + ', ';
-		let error = "Please specify whether you'd like to alter a Public or Private greeting.";
-		if (!target) return this.say(text + error);
-		let type = Tools.toId(target);
-		if (type !== "public" && type !== "private") return this.say(text + error);
-		if (!database.researchMerch) return this.say(text + "Error: The Scribe Shop does not exist. Please instruct someone with a rank to add funds to somebody's account before continuing.");
-		for (let i = 0; i < database.researchMerch.length; i++) {
-			if (database.researchMerch[i].account === user.id) {
-				if (type === "private") {
-					if (!database.researchMerch[i].greetings.private) return this.say(text + "You don't have a private greeting, " + user.name + ". :/");
-					if (database.researchMerch[i].greetings.private.enabled !== false) {
-						database.researchMerch[i].greetings.private.enabled = false;
-						this.say(text + "Private greeting now set to: Disabled.");
-					} else {
-						database.researchMerch[i].greetings.private.enabled = true;
-						this.say(text + "Private greeting now set to: Enabled.");
-					}
-				} else {
-					if (!database.researchMerch[i].greetings.public) return this.say(text + "You don't have a public greeting, " + user.name + ". :/");
-					if (database.researchMerch[i].greetings.public.enabled !== false) {
-						database.researchMerch[i].greetings.public.enabled = false;
-						this.say(text + "Public greeting now set to: Disabled.");
-					} else {
-						database.researchMerch[i].greetings.public.enabled = true;
-						this.say(text + "Public greeting now set to: Enabled.");
-					}
-				}
-				return Storage.exportDatabase('writing');
-			}
-		}
-	},
-	/*
-	* End of Scribe Shop Commands
-	*/
+	
+	//End of Scribe Shop Commands
+	
 	groups: function (target, room, user) {
 		if (room instanceof Users.User || !user.hasRank(room, '+')) return false;
 		if (!database.groups) {
@@ -1062,140 +683,6 @@ let commands = {
 				Storage.exportDatabase('writing');
 				return this.say("Cleared ALL Users");
 			}
-		}
-	},
-	database: 'myth',
-	db: 'myth',
-	myth: function (target, room, user) {
-		if (!target) return this.say("Error: Not enough arguments. Please use ``;myth help`` for usage instructions.");
-		let targets = target.split(', ');
-		if (targets[0] === "add") {
-			if (room instanceof Users.User || !user.hasRank(room, '+')) return false;
-			if (targets.length - 1 < 3) return this.say("Error: Not enough arguments. Please use ``;myth help`` for usage instructions.");
-			let name = Tools.toId(targets[1]);
-			let pan = Tools.toId(targets[2]);
-			let desc = targets.slice(3, targets.length).join(', ');
-			for (let i = 0; i < database.myths.db.length; i++) {
-				if (name === Tools.toId(database.myths.db[i].name) && pan === Tools.toId(database.myths.db[i].pan)) {
-					return this.say("Error: An entry already exists using that name and pantheon. Are you sure they're not already in the database?");
-				}
-			}
-			let input = {
-				id: null,
-				name: targets[1],
-				pan: toTitleCase(targets[2]),
-				desc: desc,
-				img: "https://s13.postimg.org/xo2obg0h3/no_thumb.png",
-				user: user.name,
-				added: new Date().toString(),
-			};
-			database.myths.pending = input;
-			Storage.exportDatabase('writing');
-			return this.say("To confirm addition of ``" + input.name + "`` under pantheon ``" + input.pan + "``, type ``;myth confirm, add``.");
-		} else if (targets[0] === "confirm") {
-			if (room instanceof Users.User || !user.hasRank(room, '%')) return false;
-			if (!targets[1]) return this.say("Please specify afterwards whether or not you want to ``add`` or ``delete`` something.");
-			if (targets[1] === "add" && database.myths.pending !== null) {
-				database.myths.pending.id = database.myths.lastID + 1;
-				database.myths.db.push(database.myths.pending);
-				database.myths.lastID++;
-				this.say("Addition confirmed! Thank you, " + database.myths.pending.user + "!");
-				database.myths.pending = null;
-				Storage.exportDatabase('writing');
-			} else if (targets[1] === "delete" && database.myths.pendingDelete !== -1) {
-				database.myths.db.splice(database.myths.pendingDelete, 1);
-				for (let i = database.myths.pendingDelete; i < database.myths.db.length; i++) {
-					database.myths.db[i].id = i;
-					database.myths.lastID = i;
-				}
-				database.myths.pendingDelete = -1;
-				Storage.exportDatabase('writing');
-				return this.say("Deletion confirmed! Entry no-longer exists.");
-			} else {
-				this.say("There's nothing there to confirm. :v");
-			}
-		} else if (targets[0] === "addimage") {
-			if (room instanceof Users.User || !user.hasRank(room, '+')) return false;
-			if (targets.length > 3) return this.say("Please only specify a myth index number and an image.");
-			if (targets.length < 3) return this.say("Please specify both a myth index number and an image.");
-			if (isNaN(Number(targets[1]))) return this.say("That was not an index number. Please use the number that's stated in the entry for the thing you're trying to edit.");
-			let pattern = /((http|https|ftp):\/\/)[^\s]/;
-			if (!pattern.test(targets[2])) {
-				return this.say("Please enter a valid URL.");
-			}
-			for (let i = 0; i < database.myths.db.length; i++) {
-				if (targets[1] === database.myths.db[i].id) {
-					database.myths.db[i].img = targets[2];
-					Storage.exportDatabase('writing');
-					return this.say("Done! Image added to " + database.myths.db[i].name + "!");
-				}
-			}
-			return this.say("Entry not found. Are you sure you're using the right myth index number?");
-		} else if (targets[0] === "remove" || targets[0] === "delete") {
-			if (room instanceof Users.User || !user.hasRank(room, '%')) return false;
-			if (isNaN(Number(targets[1]))) return this.say("That was not an index number. Please use the number that's stated in the entry for the thing you're trying to edit.");
-			for (let i = 0; i < database.myths.db.length; i++) {
-				if (database.myths.db[i].id === targets[1]) {
-					database.myths.pendingDelete = Number(targets[1]);
-					Storage.exportDatabase('writing');
-					return this.say("Myth found under name '" + database.myths.db[i].name + "' and pantheon '" + database.myths.db[i].pan + "'. If this is correct, please use ``;myth confirm, delete``.");
-				}
-			}
-			return this.say("Entry not found. Are you sure you're using the right myth index number?");
-		} else if (targets[0] === "view" || targets[0] === "show" || targets[0] === "see" || targets[0] === "search") {
-			if (targets.length < 2) return this.say("Error: Not enough arguments. Please use ``;myth help`` for usage instructions.");
-			if (targets.length > 2) return this.say("Error: Too many arguments. Please only search for one thing at a time. Thanks!");
-			let targetNumber = parseInt(targets[1]);
-			if (!isNaN(targetNumber)) {
-				if (targetNumber > database.myths.db.length || targetNumber < 0) return this.say("That number entry doesn't exist!");
-				for (let i = 0; i < database.myths.db.length; i++) {
-					if (targetNumber === database.myths.db[i].id) {
-						// Requires * rank.
-						let myth = database.myths.db[i];
-						return this.sayHtml('<div style="background: "><img src="' + myth.img + '" alt="' + myth.img + '" height="84" width="84" style="float: left; border: 1px solid gray;"><div style="height: 85px; text-align: left; border-bottom: 2px solid gray"><br /><span style="padding-left: 10px; font-weight: bold; font-size: 2em; font-family: Century Gothic, sans-serif">' + myth.name + '</span><br /><span style="padding-left: 10px; font-style: italic; color: grey; font-family: Century Gothic, sans-serif">' + myth.pan + '</span><br/></div><span style="padding-left: 95px; font-weight: bold; font-family: Century Gothic, sans-serif"><center>' + myth.desc + '</center></span><br /><span style="float: right; color: #888; font-size: 8pt;">Entry ID: ' + myth.id + '<br />Added by ' + myth.user + '.</span></div><br /><br />');
-					}
-				}
-				return this.say("Cannot find entry.");
-			} else {
-				let term = Tools.toId(targets[1]);
-				let nameFound = [];
-				for (let i = 0; i < database.myths.db.length; i++) {
-					if (term === Tools.toId(database.myths.db[i].name)) {
-						nameFound.push([database.myths.db[i].name, database.myths.db[i].pan, database.myths.db[i].id]);
-					}
-				}
-				if (nameFound.length > 0) {
-					let panArray = [];
-					let idArray = [];
-					for (let i = 0; i < nameFound.length; i++) {
-						panArray.push(nameFound[i][1]);
-						idArray.push(nameFound[i][2]);
-					}
-					this.say("We found " + nameFound.length + " result(s) for '" + targets[1] + "', under pantheon(s) [``" + panArray.join(', ') + "``]!");
-					return this.say("ID(s): ``" + idArray.join(', ') + "``. Use these IDs to view the specific entry (e.g. ``view 0``.");
-				}
-				return this.say("No results found for search '" + targets[1] + "'.");
-			}
-		} else if (targets[0] === "list") {
-			let output = [];
-			for (let i = 0; i < database.myths.db.length; i++) {
-				output.push(database.myths.db[i].pan + "|SORTBREAK|" + database.myths.db[i].name + " [ID: " + database.myths.db[i].id + "]" + "\nPantheon: " + database.myths.db[i].pan + "\nDescription: " + database.myths.db[i].desc + "\n(added by " + database.myths.db[i].user + ")\n\n");
-			}
-			// We sort the output alphabetically by Pantheon.
-			output.sort();
-			for (let i = 0; i < output.length; i++) {
-				//@ts-ignore
-				output[i] = output[i].split("|SORTBREAK|").pop();
-			}
-			return Tools.uploadToHastebin('Myths & Magic Database\n\n\n' + output.join(''), /**@param {string} link*/ link => {
-				if (link.startsWith('Error')) return this.say(link);
-				this.say('Full Database: ' + link);
-			});
-		} else if (targets[0] === "help") {
-			//Help function.
-			return this.say("Database command information can be found here: https://github.com/AxeBane/The-Scribe-old/blob/master/README.md#database-commands");
-		} else {
-			return this.say("Unknown parameter(s). You might be missing a comma somewhere!");
 		}
 	},
 };
