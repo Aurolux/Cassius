@@ -26,38 +26,15 @@ let shopMerch = [
 		"5 (Five)",
 		5,
 		"fossil, amount of fossils",
-		"groupchat-aurolux-science"],
+		"groupchat-umbraaura-science"],
 	/* Editing format
-	["Take The Stage",
-		"For up to 2 minutes, we will set the room to modchat(+) and let you recite your poem or rap in the chat live! There is no greater way to receive feedback and recognition.",
-		"500 (Five Hundred)",
-		500,
-		"take the stage. Then, use the 'spotlight' command as instructed to use up your purchase! No refunds on this if you use it and nobody's paying attention, so use it when you think would be the best time. :3",
-		"groupchat-aurolux-science"],
-	["Poetic License",
-		"Simply owning one of these grants you the ability to set the Word of the Day up to 3 times through the " + Config.commandCharacter + "wotd command! Usage: " + Config.commandCharacter + "wotd Word, Pronunciation, Part of Speech (Noun, Verb, Adjective, etc...), and Definition. -- DON'T BUY THIS IF YOU ARE ALREADY VOICE OR ABOVE",
-		"550 (Five Hundred and Fifty)",
-		550,
-		"poetic license. Then, follow the instructions provided in the item's description.",
-		"Writing"],
-	["Personal Greeting (Public)",
-		"Use this to gain the ability to set a personal greeting for The Scribe to say whenever you join the room after being gone for a while! What better way to make an entrance?",
-		"1,500 (One Thousand, Five Hundred)",
-		1500,
-		"public greeting. Follow the instructions provided on purchase.",
-		"Writing, Myths & Magic, and The Arcadium"],
-	["Let's Save The World!",
-		"Get yourself immortalized as a PROTAGONIST in a short story written by some of the Writing Room's best story writers. ETA: 3 weeks from purchase.",
-		"2,000 (Two Thousand)",
-		2000,
-		"protagonist. Follow the rest instuctions provided on purchase.",
-		"Writing"],
-	["Destroy It All!",
-		"Get yourself immortalized as an ANTAGONIST in a short story written by some of the Writing Room's best story writers. ETA: 3 weeks from purchase.",
-		"2,000 (Two Thousand)",
-		2000,
-		"antagonist. Follow the rest instuctions provided on purchase.",
-		"Writing"], */
+	["Item Name",
+		"Item Desc",
+		"Cost(#) (Cost(A-Z)",
+		Cost(#),
+		"Directions for using",
+		"groupchat-umbraaura-science"],
+	*/
 	["Your Soul",
 		"???",
 		"1,000,000 (One Million)",
@@ -417,6 +394,27 @@ let commands = {
 		this.say(text + "The Star of the Day has been set to '" + targets[0] + "'!");
 		this.say("/modnote The Star of the Day was set to " + database.stotd.title + " by " + database.stotd.user + ".");
 		},
+	//Display all OTDs (Fact, Scientist, Star)
+	'all': 'aotd',
+	aotd: function (target, room, user) {
+		let text = room instanceof Users.User || user.hasRank(room, '+') ? '' : '/pm ' + user.name + ', ';
+		if (!target) {
+			if (!database.stotd) return this.say(text + "No Star of the Day has been set.");
+			if (!database.sotd) return this.say(text + "No Scientist of the Day has been set.");
+			if (!database.fotd) return this.say(text + "No Fact of the Day has been set.");
+			let box = '<div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"><div><span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: #e27a0b ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-thermometer-1"></i> Fact of the Day <i class = "fa fa-thermometer-1"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.fotd.fact + '</div><span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;"><b>Field of Science:</b> <span style="letter-spacing:0;">' + database.fotd.type + '</span></span> <span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.fotd.description + '</span></td></tr></table></div><div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"><span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: green ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-flask"></i> Scientist of the Day <i class="fa fa-flask"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.sotd.title + '</div> <span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;">' + database.sotd.lifetime + ' - <strong style="letter-spacing:0;">' + database.sotd.profession + '</strong></span><span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.sotd.description + '</span></td></tr></table></div><div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"> <span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: #5b24ad ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-star"></i> Star of the Day <i class="fa fa-star"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.stotd.title + '</div><span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;"><b>Type:</b> <span style="letter-spacing:0;">' + database.stotd.type + '</span></span> <span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.stotd.description + '</span></td></tr></table></div></div>';
+			let boxpm = '<div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"><div><span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: #e27a0b ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-thermometer-1"></i> Fact of the Day <i class = "fa fa-thermometer-1"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.fotd.fact + '</div><span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;"><b>Field of Science:</b> <span style="letter-spacing:0;">' + database.fotd.type + '</span></span> <span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.fotd.description + '</span></td></tr></table></div><div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"><span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: green ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-flask"></i> Scientist of the Day <i class="fa fa-flask"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.sotd.title + '</div> <span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;">' + database.sotd.lifetime + ' - <strong style="letter-spacing:0;">' + database.sotd.profession + '</strong></span><span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.sotd.description + '</span></td></tr></table></div><div style="font-family: Georgia, serif ; max-width: 550px ; margin: auto ; padding: 8px 8px 12px 8px; text-align: left; background: rgba(250, 250, 250, 0.8)"> <span style="display: block ; font-family: Verdana, Geneva, sans-serif ; font-size: 16pt ; font-weight: bold ; background: #5b24ad ; padding: 3px 0 ; text-align: center ; border-radius: 2px ; color: rgba(255 , 255 , 255 , 1) ; margin-bottom: 0px"> <i class="fa fa-star"></i> Star of the Day <i class="fa fa-star"></i> </span><table style="padding-top: 0px;"> <tr> <td style="padding-left:8px; vertical-align:baseline;"> <div style="font-size: 22pt ; margin-top: 5px; color: black;">' + database.stotd.title + '</div><span style="font-family:sans-serif;font-size:12pt;display:block;color:rgba(0,0,0,0.7);letter-spacing:0px;"><b>Type:</b> <span style="letter-spacing:0;">' + database.stotd.type + '</span></span> <span style="font-size:10pt;font-family:sans-serif;margin-top:10px;display:block;color:rgba(0,0,0,0.8)"><strong style="font-family:serif;margin-right:10px;color:rgba(0,0,0,0.5)"></strong>' + database.stotd.description + '</span></td></tr></table></div></div>';
+			if (!(room instanceof Users.User) && user.hasRank(room, '+')) {
+				return this.sayHtml(box);
+			} else {
+				// The below is a hacky way to get pminfobox to work within PM. It defaults to Writing since AxeBot/The Scribe is always * in that room. For personal bots, this should be changed to any room that you can guarentee the bot has at least * permissions.
+				if (!(room instanceof Users.User) && Users.self.rooms.get(room) === '*') {
+					return this.pmHtml(user, boxpm);
+				} else {
+					return this.say(text + "Today's Fact, Scientist and Star the Day are **" + database.fotd.title + "**," + database.sotd.title + "**, and" + database.stotd.title + "**.");
+				}
+			}
+		}
 	/*
 	* Scribe Shop Commands!
 	*/
