@@ -34,7 +34,7 @@ function getDatabase() {
 
 /**@type {{[k: string]: Command | string}} */
 let commands = {
-	hangmanrank: 'setquotesrank',
+	hangmanrank: 'sethangmanrank',
 	sethangmanrank: function (target, room, user) {
 		if (!room instanceof Users.User || !user.hasRank(room, '#')) return;
 		let database = getDatabase();
