@@ -79,7 +79,7 @@ let commands = {
 		this.say("Your hangman was successfully added.");
 	},
 	hangman(target, room, user) {
-		if (!user.hasRank(room, databse.defaultRank)) return;
+		if (!user.hasRank(room, database.defaultRank)) return;
 		let cat = target.split(',')[0]; 
 		let database = getDatabase();
 		let r = Math.floor(Math.random() * Object.keys(database.hangmans).length);
