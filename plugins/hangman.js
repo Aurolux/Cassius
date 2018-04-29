@@ -79,9 +79,9 @@ let commands = {
 		this.say("Your hangman was successfully added.");
 	},
 	hangman(target, room, user) {
+		let database = getDatabase();
 		if (!user.hasRank(room, database.defaultRank)) return;
 		let cat = target.split(',')[0]; 
-		let database = getDatabase();
 		let r = Math.floor(Math.random() * Object.keys(database.hangmans).length);
 		let hangmanWords = database.hangmans[cat] || database.hangmans[Object.keys(database.hangmans)[r]];
 		let randomSolution = Tools.sampleOne(hangmanWords);
