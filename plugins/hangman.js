@@ -50,10 +50,10 @@ let commands = {
 		let database = getDatabase();
 		if (!user.hasRank(room, database.defaultRank)) return;
 		target = target.trim();
-		if (!target) return this.say("Please use the following format: .addhangman solution, hint, category");
+		if (!target) return this.say("Please use the following format: .addhangman category, solution, hint");
 		let split = target.split(',');
-		let solution = split[0];
-		let cat = split[2].trim();
+		let solution = split[1];
+		let cat = split[0].trim();
 		if (!cat) return this.say("Please include a category.");
 		// Copied from the hangman code from PS!:
 		// https://github.com/Zarel/Pokemon-Showdown/blob/master/chat-plugins/hangman.js
@@ -73,7 +73,7 @@ let commands = {
                 return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
         }
 }).join(' ');
-		let hint = split.slice(1).join(',').trim();
+		let hint = split.slice(2).join(',').trim();
 		if (hint.length > 150) return this.say("Your hint cannot exceed 150 characters. (" + hint.length + "/150)");
 		database.hangmans[cat].push({hint: solution}); 
 		this.say("Your hangman was successfully added.");
