@@ -18,53 +18,43 @@
 const validRanks = ['+', '%', '@', '#'];
 
 /**
+ * Obtains the given room's database. If the hangman database
+ * wasn't already initialised, then it is done here.
  * @param {Room | string} room
  * @return {AnyObject}
  */
-function getDatabase(room) {
-	if (room instanceof Rooms.Room) room = room.id;
-	let database = Storage.getDatabase(room);
-	if (!database.hangman) database.hangman = {};
-	if (!database.defaultRanks) {
-		database.defaultRanks = {};
-		database.defaultRanks.hangman = '%';
+function getDatabase() {
+	let database = Storage.getDatabase("hangman");
+	if (!database) database = {};
+	if (!database.defaultRank) {
+		database.defaultRank = '+';
 	}
 	return database;
 }
 
-/**
- * @param {string} string
- * @return {string}
- */
-function toRoomid(string) {
-	return string.toLowerCase().replace(/[^a-z0-9-]+/g, '');
-}
-
 /**@type {{[k: string]: Command | string}} */
-const commands = {
+let commands = {
 	hangmanrank: 'sethangmanrank',
-	sethangmanrank(target, room, user) {
-		if (room instanceof Users.User || !user.hasRank(room, '#')) return;
-		let database = getDatabase(room.id);
+	sethangmanrank: function (target, room, user) {
+		if (!room instanceof Users.User || !user.hasRank(room, '#')) return;
+		let database = getDatabase();
 		target = target.trim();
-		if (!target) return this.say("Users of rank " + database.defaultRanks.hangman + " and higher can manage the room's hangman database.");
+		if (!target) return this.say("Users of rank " + database.defaultRank + " and higher can manage room quotes.");
 		if (!validRanks.includes(target)) return this.say("Unknown option. Valid ranks: " + validRanks.join(", "));
-		database.defaultRanks['hangman'] = target;
-		Storage.exportDatabase(room.id);
-		this.say("Users of rank " + target + " and above can now manage the room's hangman database.");
+		database.defaultRank = target;
+		Storage.exportDatabase("hangman");
+		this.say("Users of rank " + target + " and above can now manage hangmans.");
 	},
-
-	addhangman(target, room, user) {
-		if (!(room instanceof Users.User)) return;
+	addhangman: function (target, room, user) {
+		if (room instanceof Users.User) return;
+		let database = getDatabase();
+		if (!user.hasRank(room, database.defaultRank)) return;
+		target = target.trim();
+		if (!target) return this.say("Please use the following format: .addhangman category, solution, hint");
 		let split = target.split(',');
-		if (split.length < 3) return this.say("Please use the following format: .addhangman room, solution, hint");
-		let roomid = toRoomid(split.shift());
-		if (!roomid) return this.say("Invalid room name.");
-		let targetRoom = Rooms.get(roomid);
-		if (!targetRoom) return this.say("For various reasons, please specify a room that I'm currently in.");
-		let database = getDatabase(targetRoom.id);
-		if (!user.hasRank(targetRoom, database.defaultRanks.hangman)) return;
-		let solution = split[0];
+		let solution = split[1];
+		let cat = split[0].trim();
+		if (!cat) return this.say("Please include a category.");
 		// Copied from the hangman code from PS!:
 		// https://github.com/Zarel/Pokemon-Showdown/blob/master/chat-plugins/hangman.js
 		solution = solution.replace(/[^A-Za-z '-]/g, '').trim();
@@ -83,56 +73,34 @@ const commands = {
                 return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
         }
 }).join(' ');
-		if (database.hangman[solution]) return this.say("Your word already exists in the database. Please delete the existing solution and reuse this command.");
-		let hint = split.slice(1).join(',').trim();
+		let hint = split.slice(2).join(',').trim();
 		if (hint.length > 150) return this.say("Your hint cannot exceed 150 characters. (" + hint.length + "/150)");
-		database.hangman[solution] = {hint: hint, addedBy: user.name};
-		Storage.exportDatabase(targetRoom.id);
-		this.say("Your word has been successfully added.");
+		database.hangmans[cat].push({hint: solution}); 
+		this.say("Your hangman was successfully added.");
 	},
-
-	deletehangman(target, room, user) {
-		if (!(room instanceof Users.User)) return;
-		let split = target.split(',');
-		if (split.length < 2) return this.say("Please use the following format: .deletehangman room, solution");
-		let roomid = toRoomid(split.shift());
-		if (!roomid) return this.say("Invalid room name.");
-		let targetRoom = Rooms.get(roomid);
-		if (!targetRoom) return this.say("For various reasons, please specify a room that I'm currently in.");
-		let database = getDatabase(targetRoom.id);
-		if (!user.hasRank(targetRoom, database.defaultRanks.hangman)) return;
-		let solution = Tools.toId(split[0]);
-		if (!database.hangman[solution]) return this.say("That solution doesn't exist.");
-		delete database.hangman[solution];
-		Storage.exportDatabase(targetRoom.id);
-		this.say("That word has been successfully deleted.");
-	},
-
 	hangman(target, room, user) {
-		if (room instanceof Users.User) return;
-		let database = getDatabase(room.id);
-		if (!user.hasRank(room, database.defaultRanks.hangman)) return;
-		let hangmanWords = database.hangman;
-		let randomSolution = Tools.sampleOne(Object.keys(hangmanWords));
-		this.say("/hangman new " + randomSolution + ", " + hangmanWords[randomSolution].hint);
+		let database = getDatabase();
+		if (!user.hasRank(room, database.defaultRank)) return;
+		let cat = target.split(',')[0]; 
+		let r = Math.floor(Math.random() * Object.keys(database.hangmans).length);
+		let hangmanWords = database.hangmans[cat] || database.hangmans[Object.keys(database.hangmans)[r]];
+		let randomSolution = Tools.sampleOne(hangmanWords);
+		this.say("/hangman new " + Object.keys(randomSolution)[0] + ", " + randomSolution[Object.keys(randomSolution)[0]]);
 		this.say("/wall Use ``/guess [word] or [letter]`` to guess.")
 	},
-
-	viewhangman(target, room, user) {
+	removehangman: function (target, room, user) {
 		if (room instanceof Users.User) return;
-		let database = getDatabase(room.id);
-		if (!user.hasRank(room, database.defaultRanks.hangman)) return;
-		let prettifiedWords = "Hangman words for " + room.id + ":\n\n";
-		let hangmanWords = database.hangman;
-		for (let solution in hangmanWords) {
-			let data = hangmanWords[solution];
-			prettifiedWords += solution + " (HINT: " + data.hint + ") (added by: " + data.addedBy + ")\n";
-		}
-		prettifiedWords += "\n(DON'T LEAK THIS TO REGULAR USERS)";
-		Tools.uploadToHastebin(prettifiedWords, /**@type {string} */ hastebinUrl => {
-			this.pm(user, "Hangman words for " + room.id + ": " + hastebinUrl);
-		});
+		let database = getDatabase();
+		if (!user.hasRank(room, database.defaultRank)) return;
+		target = target.trim();
+		if (!target) return this.say("Please use the following format: .removehangman {Hint: Solution}");
+		let hangmans = database.hangmans;
+		let index = hangmans.findIndex(/**@param {string} hangman */ hangman => Tools.toId(hangman) === Tools.toId(target));
+		if (index < 0) return this.say("Your hangman doesn't exist in the database.");
+		hangmans.splice(index, 1);
+		Storage.exportDatabase();
+		this.say("Your hangman was successfully removed.");
 	},
 };
 
-module.exports = {commands};
+exports.commands = commands;
