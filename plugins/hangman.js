@@ -18,7 +18,7 @@
 const validRanks = ['+', '%', '@', '#'];
 
 /**
- * Obtains the given room's database. If the quotes database
+ * Obtains the given room's database. If the hangman database
  * wasn't already initialised, then it is done here.
  * @param {Room | string} room
  * @return {AnyObject}
